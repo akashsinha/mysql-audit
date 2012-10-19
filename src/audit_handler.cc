@@ -364,6 +364,7 @@ static inline void yajl_add_obj( yajl_gen gen,  const char *db,const char* ptype
 //}
 ssize_t Audit_json_formatter::event_format(ThdSesData* pThdData, IWriter * writer)
 {
+     time_t now;
     unsigned long thdid = thd_get_thread_id(pThdData->getTHD());
     query_id_t qid = thd_inst_query_id(pThdData->getTHD());
 	int command = thd_inst_command(pThdData->getTHD());
@@ -378,7 +379,9 @@ ssize_t Audit_json_formatter::event_format(ThdSesData* pThdData, IWriter * write
     //TODO: get the start date from THD (but it is not in millis. Need to think about how we handle this)
     //for now simply use the current time.
     //my_getsystime() time since epoc in 100 nanosec units. Need to devide by 1000*(1000/100) to reach millis
-    uint64 ts = my_getsystime() / (10000);
+    //Using the system timestamp
+    now = time(0);
+    uint64 ts = now;
     yajl_add_uint64(gen, "date", ts);
     yajl_add_uint64(gen, "thread-id", thdid);
     yajl_add_uint64(gen, "query-id", qid);

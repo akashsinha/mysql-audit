@@ -19,6 +19,7 @@
 
 #include "audit_handler.h"
 #include <string.h>
+#include <time.h>
 
 /*
  Disable __attribute__() on non-gcc compilers.
