@@ -508,6 +508,7 @@ static my_bool json_file_handler_flush = FALSE;
 static my_bool json_socket_handler_enable = FALSE;
 static my_bool uninstall_plugin_enable = FALSE;
 static my_bool validate_checksum_enable = FALSE;
+static my_bool interactive_enable = FALSE;
 static char * offsets_string = NULL;
 static char * checksum_string = NULL;
 static int delay_ms_val =0;
@@ -594,6 +595,10 @@ static int check_array(const char *cmds[],const char *array, int length) {
 static void audit(ThdSesData *pThdData)
 {
     THDPRINTED *pThdPrintedList = GetThdPrintedList (pThdData->getTHD());
+  if (interactive_enable && ((pThdData->getTHD()->client_capabilities & CLIENT_INTERACTIVE))) {
+      return; //Won't log the non-interactive queries
+  }
+
   if (num_record_cmds > 0) {
       const char * cmd = pThdData->getCmdName();
       const char *cmds[2];
@@ -1769,6 +1774,10 @@ static MYSQL_SYSVAR_BOOL(validate_checksum, validate_checksum_enable,
         PLUGIN_VAR_RQCMDARG | PLUGIN_VAR_READONLY ,
         "AUDIT plugin binary checksum validation Enable|Disable", NULL, NULL, 1);
 
+static MYSQL_SYSVAR_BOOL(interactive_only, interactive_enable,
+        PLUGIN_VAR_RQCMDARG,
+        "AUDIT plugin logs only interactive client query Enable|Disable", NULL, NULL, 0);
+
 static MYSQL_SYSVAR_BOOL(json_socket, json_socket_handler_enable,
 			 PLUGIN_VAR_RQCMDARG,
         "AUDIT plugin json log unix socket Enable|Disable", NULL, json_log_socket_enable, 0);
@@ -1807,6 +1816,7 @@ static struct st_mysql_sys_var* audit_system_variables[] =
 		MYSQL_SYSVAR(json_file_flush),
 		MYSQL_SYSVAR(uninstall_plugin),
 		MYSQL_SYSVAR(validate_checksum),
+		MYSQL_SYSVAR(interactive_only),
 		MYSQL_SYSVAR(json_socket_name),
 		MYSQL_SYSVAR(offsets),
         MYSQL_SYSVAR(json_socket),
