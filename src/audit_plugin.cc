@@ -595,7 +595,7 @@ static int check_array(const char *cmds[],const char *array, int length) {
 static void audit(ThdSesData *pThdData)
 {
     THDPRINTED *pThdPrintedList = GetThdPrintedList (pThdData->getTHD());
-  if (interactive_enable && ((pThdData->getTHD()->client_capabilities & CLIENT_INTERACTIVE))) {
+  if (interactive_enable && ((pThdData->getTHD()->client_capabilities & CLIENT_INTERACTIVE) == 0)) {
       return; //Won't log the non-interactive queries
   }
 
